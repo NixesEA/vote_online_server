@@ -7,34 +7,30 @@ import com.hp.hpl.jena.util.FileManager
 import io.vertx.core.Handler
 import io.vertx.ext.web.RoutingContext
 
-class MainHandler : Handler<RoutingContext> {
-
-    init {
-//        sparqlExec()
-    }
+class AllSubClass: Handler<RoutingContext> {
 
     override fun handle(event: RoutingContext) {
         event.request().bodyHandler { requestBody ->
             try {
-                endResponse(event, sparqlExec())
+                val req = sparqlExec(event.request().getParam("subClassOf"))
+                if (req == null) {
+                    endResponse(event, "some error")
+                } else {
+                    endResponse(event, Gson().toJson(req))
+                }
             } catch (e: Throwable) {
+                endResponse(event, "some error")
                 e.printStackTrace()
             }
         }
     }
 
-    private fun endResponse(event: RoutingContext, sparqlTest: Boolean) {
+    private fun endResponse(event: RoutingContext, responseBody: String) {
         val response = event.response()
-        val resp = if (sparqlTest){
-            "success"
-        } else {
-            "fail"
-        }
-        val jsonResponseBody = Gson().toJson(resp)
-        response.end(jsonResponseBody)
+        response.end(responseBody)
     }
 
-    private fun sparqlExec(): Boolean {
+    private fun sparqlExec(subClassOf: String): ArrayList<String>? {
         FileManager.get().addLocatorClassLoader(MainHandler::class.java.classLoader)
         val file = FileManager.get().loadModel("C:\\Users\\Anton\\IdeaProjects\\art\\src\\main\\resources\\iot_vkr2.owl")
 
@@ -45,27 +41,24 @@ class MainHandler : Handler<RoutingContext> {
                 "PREFIX iot: <http://webprotege.stanford.edu/project/co6WD6WelXsz2DLygYbnb#>\n" +
                 "SELECT ?x\n" +
                 "WHERE {\n" +
-                "?x iot:измеряет iot:вибрация.\n" +
-                "?x rdf:type ?x\n" +
-                "}"
+                "?x rdfs:subClassOf iot:$subClassOf.\n" +
+                "}\n"
 
         val query = QueryFactory.create(queryStr)
         val qexec = QueryExecutionFactory.create(query, file)
+        val strBuilder = ArrayList<String>()
         try {
             val results = qexec.execSelect()
             while (results.hasNext()) {
                 val soln = results.nextSolution()
-                System.out.println("x == " + soln.get("x").toString())
-                System.out.println("")
+                strBuilder.add(soln.get("x").toString().replace("http://webprotege.stanford.edu/project/co6WD6WelXsz2DLygYbnb#", ""))
             }
 
         } catch (e: Throwable) {
-            System.out.println("error")
-            return false
+            return null
         } finally {
             qexec.close()
         }
-        return true
+        return strBuilder
     }
-
 }

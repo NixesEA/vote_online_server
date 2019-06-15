@@ -7,34 +7,30 @@ import com.hp.hpl.jena.util.FileManager
 import io.vertx.core.Handler
 import io.vertx.ext.web.RoutingContext
 
-class MainHandler : Handler<RoutingContext> {
-
-    init {
-//        sparqlExec()
-    }
+class AllModule: Handler<RoutingContext> {
 
     override fun handle(event: RoutingContext) {
         event.request().bodyHandler { requestBody ->
             try {
-                endResponse(event, sparqlExec())
+                val req = sparqlExec()
+                if (req == null) {
+                    endResponse(event, "some error")
+                } else {
+                    endResponse(event, Gson().toJson(req))
+                }
             } catch (e: Throwable) {
+                endResponse(event, "some error")
                 e.printStackTrace()
             }
         }
     }
 
-    private fun endResponse(event: RoutingContext, sparqlTest: Boolean) {
+    private fun endResponse(event: RoutingContext, responseBody: String) {
         val response = event.response()
-        val resp = if (sparqlTest){
-            "success"
-        } else {
-            "fail"
-        }
-        val jsonResponseBody = Gson().toJson(resp)
-        response.end(jsonResponseBody)
+        response.end(responseBody)
     }
 
-    private fun sparqlExec(): Boolean {
+    private fun sparqlExec(): HashMap<String,String>? {
         FileManager.get().addLocatorClassLoader(MainHandler::class.java.classLoader)
         val file = FileManager.get().loadModel("C:\\Users\\Anton\\IdeaProjects\\art\\src\\main\\resources\\iot_vkr2.owl")
 
@@ -43,29 +39,29 @@ class MainHandler : Handler<RoutingContext> {
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
                 "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n" +
                 "PREFIX iot: <http://webprotege.stanford.edu/project/co6WD6WelXsz2DLygYbnb#>\n" +
-                "SELECT ?x\n" +
+                "SELECT ?датчик ?класс_датчика\n" +
                 "WHERE {\n" +
-                "?x iot:измеряет iot:вибрация.\n" +
-                "?x rdf:type ?x\n" +
-                "}"
+                "?x rdfs:label \"модули\".\n" +
+                "?class1 rdfs:subClassOf ?x.\n" +
+                "?класс_датчика rdfs:subClassOf ?class1.\n" +
+                "?датчик rdfs:subClassOf ?класс_датчика\n" +
+                "}\n"
 
         val query = QueryFactory.create(queryStr)
         val qexec = QueryExecutionFactory.create(query, file)
+        val strBuilder = HashMap<String,String>()
         try {
             val results = qexec.execSelect()
             while (results.hasNext()) {
                 val soln = results.nextSolution()
-                System.out.println("x == " + soln.get("x").toString())
-                System.out.println("")
+                strBuilder.put(soln.get("класс_датчика").toString().replace("http://webprotege.stanford.edu/project/co6WD6WelXsz2DLygYbnb#", ""),soln.get("датчик").toString().replace("http://webprotege.stanford.edu/project/co6WD6WelXsz2DLygYbnb#", ""))
             }
 
         } catch (e: Throwable) {
-            System.out.println("error")
-            return false
+            return null
         } finally {
             qexec.close()
         }
-        return true
+        return strBuilder
     }
-
 }

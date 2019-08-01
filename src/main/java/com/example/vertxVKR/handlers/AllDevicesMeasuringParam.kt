@@ -27,6 +27,7 @@ class AllDevicesMeasuringParam: Handler<RoutingContext> {
 
     private fun endResponse(event: RoutingContext, responseBody: String) {
         val response = event.response()
+        response.putHeader("content-type", "application/json; charset=utf-8")
         response.end(responseBody)
     }
 

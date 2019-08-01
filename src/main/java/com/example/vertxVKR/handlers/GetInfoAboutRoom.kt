@@ -1,5 +1,6 @@
 package com.example.vertxVKR.handlers
 
+import com.example.vertxVKR.VertxApplication.Companion.global
 import com.google.gson.Gson
 import com.hp.hpl.jena.query.QueryExecutionFactory
 import com.hp.hpl.jena.query.QueryFactory
@@ -7,16 +8,17 @@ import com.hp.hpl.jena.util.FileManager
 import io.vertx.core.Handler
 import io.vertx.ext.web.RoutingContext
 
-class AllDevicesParam: Handler<RoutingContext> {
+class GetInfoAboutRoom: Handler<RoutingContext> {
 
     override fun handle(event: RoutingContext) {
         event.request().bodyHandler { requestBody ->
             try {
-                val req = sparqlExec(event.request().getParam("device"))
+                val req = event.request().getParam("id").toInt()
+                println("get room by id:: id = ${req}")
                 if (req == null) {
-                    endResponse(event, "some error")
+                    endResponse(event, "Some error with ID")
                 } else {
-                    endResponse(event, Gson().toJson(req))
+                    endResponse(event, Gson().toJson(global[req]))
                 }
             } catch (e: Throwable) {
                 endResponse(event, "some error")
@@ -27,6 +29,7 @@ class AllDevicesParam: Handler<RoutingContext> {
 
     private fun endResponse(event: RoutingContext, responseBody: String) {
         val response = event.response()
+        response.putHeader("content-type", "application/json; charset=utf-8")
         response.end(responseBody)
     }
 
@@ -39,11 +42,11 @@ class AllDevicesParam: Handler<RoutingContext> {
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
                 "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n" +
                 "PREFIX iot: <http://webprotege.stanford.edu/project/co6WD6WelXsz2DLygYbnb#>\n" +
-                "SELECT ?x ?param\n" +
+                "SELECT ?x ?model\n" +
                 "WHERE {\n" +
                 "?x rdf:type iot:$device.\n" +
-                "?x iot:содержит ?module.\n" +
-                "?module iot:измеряет ?param}"
+                "?x iot:содержит ?model\n" +
+                "}"
 
         val query = QueryFactory.create(queryStr)
         val qexec = QueryExecutionFactory.create(query, file)
@@ -52,7 +55,7 @@ class AllDevicesParam: Handler<RoutingContext> {
             val results = qexec.execSelect()
             while (results.hasNext()) {
                 val soln = results.nextSolution()
-                strBuilder.put(soln.get("param").toString().replace("http://webprotege.stanford.edu/project/co6WD6WelXsz2DLygYbnb#", ""),soln.get("device").toString().replace("http://webprotege.stanford.edu/project/co6WD6WelXsz2DLygYbnb#", ""))
+                strBuilder.put(soln.get("model").toString().replace("http://webprotege.stanford.edu/project/co6WD6WelXsz2DLygYbnb#", ""),soln.get("x").toString().replace("http://webprotege.stanford.edu/project/co6WD6WelXsz2DLygYbnb#", ""))
             }
 
         } catch (e: Throwable) {

@@ -25,34 +25,29 @@ class VertxApplication : AbstractVerticle() {
                     }
                 }
 
-
-        router.post("/users_sparql")
-                .handler(UsersSPARQL())
-
-        router.get("/graph")
-                .handler(MainHandler())
-
-        router.get("/all_subclassof")
-                .handler(AllSubClass())
-
-        router.get("/all_module")
-                .handler(AllModule())
-
-        router.get("/all_module_in_device")
-                .handler(AllModuleInDevice())
-
-        router.get("/all_devices_contains_module")
-                .handler(AllDeviceContainsModule())
-
-        router.get("/all_mod_mes_param")
-                .handler(AllModuleMeasuringParam())
-        router.get("/all_dev_mes_param")
-                .handler(AllDevicesMeasuringParam())
-
-        router.get("/all_dev_param")
-                .handler(AllDevicesParam())
-
-
+//        router.get("/graph")
+//                .handler(MainHandler())
+//
+//        router.get("/all_subclassof")
+//                .handler(AllSubClass())
+//
+//        router.get("/all_modules")//check
+//                .handler(AllModule())
+//
+//        router.get("/all_modules_in_device")
+//                .handler(GetInfoAboutRoom())
+//        router.get("/all_devices_containing_module")
+//                .handler(AllDeviceContainsModule())
+//
+//        router.get("/all_modules_measuring_param")
+//                .handler(AllModuleMeasuringParam())
+//        router.get("/all_devices_measuring_param")//check
+//                .handler(AllDevicesMeasuringParam())
+//
+//        router.get("/all_dev_param")//check
+//                .handler(SaveVoteProgress())
+//
+//
         router.get("/check")
                 .handler { routingContext ->
                     val response = routingContext.response()
@@ -61,7 +56,33 @@ class VertxApplication : AbstractVerticle() {
                     response.end(jsonResponseBody)
                 }
 
+
+        router.post("/post_room")
+                .handler(SaveRoom())
+
+        router.get("/vote_room")
+                .handler(GetInfoAboutRoom())
+
+        router.get("/post_vote")
+                .handler(SaveVoteProgress())
+
+        router.get("/getNewId")
+                .handler { routingContext ->
+                    val response = routingContext.response()
+                    val id = ResponseObj(id = global.size)
+                    global.add(Room(id = global.size))
+                    println("create new room:: id = $id")
+
+                    val jsonResponseBody = Gson().toJson(id)
+                    response.end(jsonResponseBody)
+                }
     }
 
-    data class ResponseObj(var name: String = "ResponseObj")
+    companion object {
+        var global = ArrayList<Room>()
+    }
+
+    data class RawRoom(var id: Int = 0, var name: String = "Default name", var speakers: List<String> = ArrayList<String>())
+    data class Room(var id: Int = 0, var name: String = "Default name", var speakers: HashMap<String, Int> = HashMap())
+    data class ResponseObj(var id: Int = 0)
 }

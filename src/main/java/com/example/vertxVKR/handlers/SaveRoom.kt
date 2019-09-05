@@ -3,9 +3,6 @@ package com.example.vertxVKR.handlers
 import com.example.vertxVKR.VertxApplication
 import com.example.vertxVKR.VertxApplication.Companion.global
 import com.google.gson.Gson
-import com.hp.hpl.jena.query.QueryExecutionFactory
-import com.hp.hpl.jena.query.QueryFactory
-import com.hp.hpl.jena.util.FileManager
 import io.vertx.core.Handler
 import io.vertx.ext.web.RoutingContext
 
@@ -37,27 +34,6 @@ class SaveRoom : Handler<RoutingContext> {
         response.end(responseBody)
     }
 
-    private fun sparqlExec(queryStr: String): ArrayList<String>? {
-        FileManager.get().addLocatorClassLoader(MainHandler::class.java.classLoader)
-        val file = FileManager.get().loadModel("C:\\Users\\Anton\\IdeaProjects\\art\\src\\main\\resources\\iot_vkr2.owl")
-
-        val query = QueryFactory.create(queryStr)
-        val qexec = QueryExecutionFactory.create(query, file)
-        val strBuilder = ArrayList<String>()
-        try {
-            val results = qexec.execSelect()
-            while (results.hasNext()) {
-                val soln = results.nextSolution()
-                strBuilder.add(soln.get("x").toString().replace("http://webprotege.stanford.edu/project/co6WD6WelXsz2DLygYbnb#", ""))
-            }
-
-        } catch (e: Throwable) {
-            return null
-        } finally {
-            qexec.close()
-        }
-        return strBuilder
-    }
 }
 
 data class RequestBody(

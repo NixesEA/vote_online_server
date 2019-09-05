@@ -2,9 +2,6 @@ package com.example.vertxVKR.handlers
 
 import com.example.vertxVKR.VertxApplication.Companion.global
 import com.google.gson.Gson
-import com.hp.hpl.jena.query.QueryExecutionFactory
-import com.hp.hpl.jena.query.QueryFactory
-import com.hp.hpl.jena.util.FileManager
 import io.vertx.core.Handler
 import io.vertx.ext.web.RoutingContext
 

@@ -8,7 +8,6 @@ public class EntryPoint {
     public static Router router = Router.router(vertx);
 
     public static void main(String[] args) {
-                vertx.deployVerticle(new VertxApplication());
-
+        vertx.deployVerticle(new VertxApplication());
     }
 }

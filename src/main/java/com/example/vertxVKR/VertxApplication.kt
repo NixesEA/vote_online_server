@@ -25,29 +25,7 @@ class VertxApplication : AbstractVerticle() {
                     }
                 }
 
-//        router.get("/graph")
-//                .handler(MainHandler())
-//
-//        router.get("/all_subclassof")
-//                .handler(AllSubClass())
-//
-//        router.get("/all_modules")//check
-//                .handler(AllModule())
-//
-//        router.get("/all_modules_in_device")
-//                .handler(GetInfoAboutRoom())
-//        router.get("/all_devices_containing_module")
-//                .handler(AllDeviceContainsModule())
-//
-//        router.get("/all_modules_measuring_param")
-//                .handler(AllModuleMeasuringParam())
-//        router.get("/all_devices_measuring_param")//check
-//                .handler(AllDevicesMeasuringParam())
-//
-//        router.get("/all_dev_param")//check
-//                .handler(SaveVoteProgress())
-//
-//
+
         router.get("/check")
                 .handler { routingContext ->
                     val response = routingContext.response()

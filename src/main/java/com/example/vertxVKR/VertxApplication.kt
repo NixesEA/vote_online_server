@@ -15,7 +15,7 @@ class VertxApplication : AbstractVerticle() {
 
         httpServer
                 .requestHandler(router::accept)
-                .listen(1080) { result ->
+                .listen(1081) { result ->
                     run {
                         if (result.succeeded()) {
                             startFuture?.complete()

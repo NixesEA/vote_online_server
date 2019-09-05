@@ -44,27 +44,6 @@
             <version>2.3.1</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.google.firebase/firebase-core -->
-                <dependency>
-                    <groupId>com.google.firebase</groupId>
-                    <artifactId>firebase-core</artifactId>
-                    <version>16.0.9</version>
-                </dependency>
-
-        <!-- https://mvnrepository.com/artifact/com.google.gms/google-services -->
-                <dependency>
-                    <groupId>com.google.gms</groupId>
-                    <artifactId>google-services</artifactId>
-                    <version>4.2.0</version>
-                    <scope>runtime</scope>
-                </dependency>
-
-        <dependency>
-            <groupId>com.google.firebase</groupId>
-            <artifactId>firebase-admin</artifactId>
-            <version>6.8.1</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/com.firebase/firebase-client-jvm -->
         <dependency>
             <groupId>com.firebase</groupId>

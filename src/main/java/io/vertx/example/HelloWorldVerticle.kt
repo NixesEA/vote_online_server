@@ -1,6 +1,7 @@
 package io.vertx.example
 
 import io.vertx.core.AbstractVerticle
+import io.vertx.core.Future
 import io.vertx.core.http.HttpServerRequest
 import io.vertx.ext.web.Router
 
@@ -20,11 +21,18 @@ class HelloWorldVerticle : AbstractVerticle() {
     }
 
     @Throws(Exception::class)
-    override fun start() {
+    override fun start(startFuture: Future<Void>?) {
         vertx.createHttpServer()
-                .requestHandler { router.accept(it) }
-                .listen(
-                        Integer.getInteger("http.port"), System.getProperty("http.address", "0.0.0.0"))
+                .requestHandler(router::handle)
+                .listen(1081) { result ->
+                    run {
+                        if (result.succeeded()) {
+                            startFuture?.complete()
+                        } else {
+                            startFuture?.fail(result.cause())
+                        }
+                    }
+                }
 
     }
 }
